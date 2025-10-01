@@ -13,10 +13,15 @@ export type MotosStackParamList = {
 export type AppTabParamList = {
   Dashboard: undefined;
   Motos: undefined;
+  MotosStack: undefined;
+  main
   Settings: undefined;
 };
 
 export type RootStackParamList = {
   AuthStack: undefined;
   AppTabs: undefined;
+  Auth: undefined;
+  App: undefined;
+main
 };
