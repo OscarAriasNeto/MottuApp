@@ -66,9 +66,9 @@ Rodar em um emulador Android/iOS (se configurado)
 Abrir no navegador, caso o projeto suporte modo web
 
 Links importantes
-Protótipo no Figma : [INSERIR AQUI]
+Protótipo no Figma : [(https://www.figma.com/design/0tnyRniZ0kMNrR2AwWbh1l/SolutionsNote?node-id=10-23&p=f&t=1ijc4ascnALWc3qK-0)]
 
-Versão publicada no Expo: [INSERIR AQUI]
+Versão publicada no Expo:(https://expo.dev/accounts/oscar.arias.neto/projects/marcacaoDeConsultasMedicas/builds/b0135c69-0485-4381-a2a8-b4bc009d5200)
 
 Contribuições
 Para contribuir com o projeto:
