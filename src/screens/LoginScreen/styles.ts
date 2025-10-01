@@ -11,21 +11,11 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingBottom: 40,
   },
-  logo: {
-    width: 180,
-    height: 180,
-    resizeMode: 'contain',
-    alignSelf: 'center',
-    marginBottom: 20,
-  },
   title: {
     fontSize: 22,
     fontWeight: '600',
     textAlign: 'center',
     marginBottom: 32,
-  },
-  fieldContainer: {
-    marginBottom: 12,
   },
   input: {
     borderWidth: 1,
@@ -34,9 +24,7 @@ export const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     fontSize: 16,
-  },
-  inputError: {
-    borderColor: '#ff5a5f',
+    marginBottom: 12,
   },
   forgotPasswordText: {
     color: '#169BA4',
@@ -49,28 +37,12 @@ export const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 6,
     alignItems: 'center',
-    marginBottom: 12,
-  },
-  primaryButtonDisabled: {
-    opacity: 0.7,
+    marginBottom: 20,
   },
   buttonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
-  },
-  devButton: {
-    borderWidth: 1,
-    borderColor: '#169BA4',
-    paddingVertical: 12,
-    borderRadius: 6,
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  devButtonText: {
-    color: '#169BA4',
-    fontSize: 15,
-    fontWeight: '500',
   },
   registerContainer: {
     flexDirection: 'row',
@@ -83,16 +55,5 @@ export const styles = StyleSheet.create({
     fontSize: 14,
     color: '#169BA4',
     textDecorationLine: 'underline',
-  },
-  errorText: {
-    color: '#ff5a5f',
-    fontSize: 12,
-    marginTop: 4,
-  },
-  authErrorText: {
-    color: '#ff5a5f',
-    fontSize: 14,
-    textAlign: 'center',
-    marginBottom: 16,
   },
 });

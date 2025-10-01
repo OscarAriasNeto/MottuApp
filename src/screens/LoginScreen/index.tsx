@@ -8,7 +8,6 @@ import {
   Platform,
   Alert,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,109 +16,30 @@ import { useNavigation } from '@react-navigation/native';
 import { styles } from './styles';
 
 type RootStackParamList = {
-  Login: undefined;
   Register: undefined;
   MotoMenu: undefined;
 };
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Login'>;
-
-type StoredUser = {
-  fullName?: string;
-  email?: string;
-  password?: string;
-  phone?: string;
-  address?: string;
-};
+type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Register'>;
 
 export default function LoginScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const [identifier, setIdentifier] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [identifierError, setIdentifierError] = useState<string | null>(null);
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [authError, setAuthError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const clearErrors = () => {
-    setIdentifierError(null);
-    setPasswordError(null);
-    setAuthError(null);
-  };
 
   const handleLogin = async () => {
-    const trimmedIdentifier = identifier.trim();
-    const trimmedPassword = password.trim();
-
-    let hasError = false;
-
-    if (!trimmedIdentifier) {
-      setIdentifierError('Informe seu e-mail, nome ou telefone.');
-      hasError = true;
-    } else {
-      setIdentifierError(null);
-    }
-
-    if (!trimmedPassword) {
-      setPasswordError('Informe sua senha.');
-      hasError = true;
-    } else {
-      setPasswordError(null);
-    }
-
-    if (hasError) {
+    const userData = await AsyncStorage.getItem('user');
+    if (!userData) {
+      Alert.alert('Erro', 'Nenhum usuário cadastrado');
       return;
     }
 
-    setIsSubmitting(true);
-    setAuthError(null);
-
-    try {
-      const userData = await AsyncStorage.getItem('user');
-
-      if (!userData) {
-        setAuthError('Nenhum usuário cadastrado. Crie sua conta para continuar.');
-        return;
-      }
-
-      const parsedData: StoredUser = JSON.parse(userData);
-
-      const storedPassword = parsedData.password ?? '';
-      const normalizedIdentifier = trimmedIdentifier.toLowerCase();
-      const identifierMatches = [
-        parsedData.email?.toLowerCase(),
-        parsedData.fullName?.toLowerCase(),
-        parsedData.phone,
-      ]
-        .filter((value): value is string => Boolean(value))
-        .some((value) => {
-          if (value === parsedData.phone) {
-            return value === trimmedIdentifier;
-          }
-          return value === normalizedIdentifier;
-        });
-
-      if (identifierMatches && trimmedPassword === storedPassword) {
-        navigation.navigate('MotoMenu');
-        clearErrors();
-        setIdentifier('');
-        setPassword('');
-      } else {
-        setAuthError('Credenciais inválidas. Verifique os dados e tente novamente.');
-      }
-    } catch (error) {
-      console.error('Erro ao tentar realizar login', error);
-      Alert.alert('Erro', 'Não foi possível realizar o login. Tente novamente.');
-    } finally {
-      setIsSubmitting(false);
+    const parsedData = JSON.parse(userData);
+    if (email === parsedData.email && password === parsedData.password) {
+      navigation.navigate('MotoMenu');
+    } else {
+      Alert.alert('Erro', 'Credenciais inválidas');
     }
-  };
-
-  const handleDevLogin = () => {
-    clearErrors();
-    setIdentifier('');
-    setPassword('');
-    navigation.navigate('MotoMenu');
   };
 
   return (
@@ -128,73 +48,31 @@ export default function LoginScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        {/* <Image source={require('../assets/SolutionsNote.png')} style={styles.logo} /> */}
         <Text style={styles.title}>Bem-vindo de volta</Text>
 
-        <View style={styles.fieldContainer}>
-          <TextInput
-            style={[styles.input, identifierError && styles.inputError]}
-            placeholder="Nome, Email ou Telefone"
-            value={identifier}
-            onChangeText={(text) => {
-              setIdentifier(text);
-              if (identifierError || authError) {
-                setIdentifierError(null);
-                setAuthError(null);
-              }
-            }}
-            keyboardType="default"
-            autoCapitalize="none"
-          />
-          {identifierError ? <Text style={styles.errorText}>{identifierError}</Text> : null}
-        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Nome ou Telefone"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="default"
+          autoCapitalize="none"
+        />
 
-        <View style={styles.fieldContainer}>
-          <TextInput
-            style={[styles.input, passwordError && styles.inputError]}
-            placeholder="Digite sua senha"
-            secureTextEntry
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (passwordError || authError) {
-                setPasswordError(null);
-                setAuthError(null);
-              }
-            }}
-          />
-          {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-        </View>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite sua senha"
+          secureTextEntry
+          value={password}
+          onChangeText={setPassword}
+        />
 
-        <TouchableOpacity
-          onPress={() => Alert.alert('Recuperar senha', 'Funcionalidade não implementada')}
-        >
+        <TouchableOpacity onPress={() => Alert.alert('Recuperar senha', 'Funcionalidade não implementada')}>
           <Text style={styles.forgotPasswordText}>Esqueceu sua senha?</Text>
         </TouchableOpacity>
 
-        {authError ? <Text style={styles.authErrorText}>{authError}</Text> : null}
-
-        <TouchableOpacity
-          style={[styles.primaryButton, isSubmitting && styles.primaryButtonDisabled]}
-          onPress={handleLogin}
-          disabled={isSubmitting}
-          accessibilityRole="button"
-          accessibilityLabel="Entrar"
-        >
-          {isSubmitting ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Log in</Text>
-          )}
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={styles.devButton}
-          onPress={handleDevLogin}
-          accessibilityRole="button"
-          accessibilityLabel="Login de desenvolvedor"
-        >
-          <Text style={styles.devButtonText}>Login rápido (Dev)</Text>
+        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
+          <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
 
         <View style={styles.registerContainer}>
