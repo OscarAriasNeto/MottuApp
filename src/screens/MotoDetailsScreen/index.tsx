@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
+
+import { styles } from './styles';
 
 type RootStackParamList = {
   MotoDetails: {
@@ -20,7 +22,7 @@ export default function MotoDetailsScreen({ route }: Props) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Detalhes da Moto</Text>
-      {/*está com bug na imagem <Image source={require('../assets/moto.png')} style={styles.motoImage} /> */}
+      {/* <Image source={require('../../../assets/moto.png')} style={styles.motoImage} /> */}
       <View style={styles.detailsContainer}>
         <Text style={styles.detailLabel}>Placa:</Text>
         <Text style={styles.detailValue}>{placa}</Text>
@@ -40,36 +42,3 @@ export default function MotoDetailsScreen({ route }: Props) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  motoImage: {
-    width: 200,
-    height: 120,
-    resizeMode: 'contain',
-    marginBottom: 24,
-  },
-  detailsContainer: {
-    width: '100%',
-  },
-  detailLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#169BA4',
-    marginTop: 12,
-  },
-  detailValue: {
-    fontSize: 18,
-    fontWeight: '400',
-  },
-});

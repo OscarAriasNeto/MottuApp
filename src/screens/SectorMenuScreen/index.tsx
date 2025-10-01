@@ -1,14 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-  Image,
-} from 'react-native';
+import { View, Text, TouchableOpacity, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+import { styles } from './styles';
 
 type RootStackParamList = {
   Settings: undefined;
@@ -16,27 +11,33 @@ type RootStackParamList = {
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Settings'>;
 
-const setoresData = [
+type SectorItem = {
+  id: string;
+  name: string;
+  motosCount: number;
+  color: string;
+};
+
+const setoresData: SectorItem[] = [
   {
     id: '1',
     name: 'Setor Verde (Manutenção)',
     motosCount: 3,
-    color: '#4CAF50', // Green
+    color: '#4CAF50',
   },
   {
     id: '2',
     name: 'Setor Vermelho (Pátio Principal)',
     motosCount: 30,
-    color: '#F44336', // Red
+    color: '#F44336',
   },
-  // Add more setores as needed
 ];
 
 export default function SectorMenuScreen() {
   const navigation = useNavigation<NavigationProp>();
   const [activeTab, setActiveTab] = useState<'Motos' | 'Setores'>('Setores');
 
-  const renderSetorItem = ({ item }: { item: typeof setoresData[0] }) => (
+  const renderSetorItem = ({ item }: { item: SectorItem }) => (
     <View style={styles.setorItem}>
       <View style={[styles.statusIndicator, { backgroundColor: item.color }]} />
       <Text style={styles.setorText}>
@@ -49,7 +50,7 @@ export default function SectorMenuScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.profileContainer}>
-        {/*está com bug na imagem <Image source={require('../assets/profile.png')} style={styles.profileImage} /> */}
+        {/* <Image source={require('../../../assets/profile.png')} style={styles.profileImage} /> */}
         <Text style={styles.profileName}>John Daniel</Text>
       </View>
 
@@ -89,91 +90,3 @@ export default function SectorMenuScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
-  },
-  profileContainer: {
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  profileImage: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    marginBottom: 8,
-  },
-  profileName: {
-    fontSize: 18,
-    fontWeight: '600',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-  },
-  tabButton: {
-    flex: 1,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 3,
-    borderBottomColor: '#169BA4',
-  },
-  tabText: {
-    fontSize: 16,
-    color: '#666',
-  },
-  activeTabText: {
-    color: '#169BA4',
-    fontWeight: '700',
-  },
-  listContent: {
-    paddingBottom: 80,
-  },
-  setorItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  statusIndicator: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
-    marginRight: 12,
-  },
-  setorText: {
-    fontSize: 16,
-  },
-  motosCount: {
-    fontSize: 12,
-    color: '#666',
-  },
-  motosPlaceholder: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  settingsButton: {
-    position: 'absolute',
-    bottom: 20,
-    left: 16,
-    right: 16,
-    backgroundColor: '#169BA4',
-    paddingVertical: 14,
-    borderRadius: 6,
-    alignItems: 'center',
-  },
-  settingsButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
