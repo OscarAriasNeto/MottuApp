@@ -99,13 +99,21 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    ```bash
    npx eas init
    ```
-   Caso já tenha o arquivo versionado (como neste repositório), confirme que o `projectId` foi atribuído automaticamente após o login.
+   Após a inicialização, copie o `projectId` exibido no terminal ou no painel da Expo.
 
-6. **Defina identificadores exclusivos**
-   - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.json` para valores únicos da sua organização.
-   - Atualize também o campo `expo.name` e `expo.slug`, se necessário, antes do build de produção.
+6. **Configure a variável de ambiente com o `projectId` do EAS**
+   - Duplique o arquivo `.env.example` e renomeie para `.env`:
+     ```bash
+     cp .env.example .env
+     ```
+   - Preencha o valor `EAS_PROJECT_ID` com o identificador obtido no passo anterior.
+   - Para builds remotos, você pode registrar o valor como segredo com `eas secret:create --name EAS_PROJECT_ID --scope project --type string`.
 
-7. **Execute um build de desenvolvimento ou preview**
+7. **Defina identificadores exclusivos**
+   - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.config.ts` para valores únicos da sua organização.
+   - Atualize também os campos `expo.name` e `expo.slug`, se necessário, antes do build de produção.
+
+8. **Execute um build de desenvolvimento ou preview**
    ```bash
    npx eas build --platform android --profile preview
    # ou
@@ -113,18 +121,18 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    ```
    Utilize o perfil `development` se precisar do cliente de desenvolvimento com Debugger.
 
-8. **Execute o build de produção**
+9. **Execute o build de produção**
    ```bash
    npx eas build --platform android --profile production
    npx eas build --platform ios --profile production
    ```
    Durante o processo, a CLI solicitará as credenciais necessárias (keystore Android ou certificados Apple).
 
-9. **Acompanhe o progresso no painel da Expo**
+10. **Acompanhe o progresso no painel da Expo**
    - Acesse [https://expo.dev/accounts](https://expo.dev/accounts)
    - Abra o projeto e acompanhe o status do build.
 
-10. **Publique atualizações (opcional)**
+11. **Publique atualizações (opcional)**
     ```bash
     npx expo upload:android
     npx expo upload:ios
