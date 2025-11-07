@@ -105,6 +105,7 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    - Você pode optar por manter o identificador em arquivo ou via variável de ambiente:
      - **Arquivo:** edite `eas.project.json` e substitua `REPLACE_WITH_YOUR_EAS_PROJECT_ID` pelo identificador copiado no passo anterior. O arquivo é versionado e mantém o projeto pronto para builds sem configuração adicional.
      - **Variável de ambiente:** se preferir não versionar o ID, duplique o arquivo `.env.example`, renomeie para `.env` e preencha `EAS_PROJECT_ID=<seu_project_id>`. Para builds remotos, registre o valor como segredo com `eas secret:create --name EAS_PROJECT_ID --scope project --type string`.
+   - Quando você roda um build remoto na Expo, a plataforma já injeta a variável `EAS_BUILD_PROJECT_ID` após o projeto estar associado à sua conta (`eas init`). A checagem no `app.config.ts` reconhece esse valor automaticamente, então basta garantir o vínculo do app com o projeto certo.
 
 7. **Defina identificadores exclusivos**
    - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.config.ts` para valores únicos da sua organização.

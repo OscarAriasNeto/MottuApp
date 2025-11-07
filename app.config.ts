@@ -66,7 +66,9 @@ const loadProjectIdFromFile = () => {
 
 const requireProjectId = () => {
   const envProjectId = normalizeProjectId(
-    process.env.EAS_PROJECT_ID || process.env.EXPO_PUBLIC_EAS_PROJECT_ID
+    process.env.EAS_PROJECT_ID ||
+      process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
+      process.env.EAS_BUILD_PROJECT_ID
   );
 
   if (envProjectId) {
@@ -80,7 +82,7 @@ const requireProjectId = () => {
   }
 
   const helpMessage =
-    "O identificador do projeto EAS não foi definido. Configure a variável de ambiente 'EAS_PROJECT_ID' (ou 'EXPO_PUBLIC_EAS_PROJECT_ID') ou preencha o campo 'projectId' em 'eas.project.json' antes de iniciar um build.";
+    "O identificador do projeto EAS não foi definido. Configure a variável de ambiente 'EAS_PROJECT_ID' (ou 'EXPO_PUBLIC_EAS_PROJECT_ID') ou preencha o campo 'projectId' em 'eas.project.json' antes de iniciar um build. Em builds remotos, a Expo injeta automaticamente 'EAS_BUILD_PROJECT_ID' depois que o projeto está vinculado à sua conta.";
 
   if (process.env.EAS_BUILD) {
     throw new Error(helpMessage);
