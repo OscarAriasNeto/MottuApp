@@ -2,6 +2,8 @@ import { ConfigContext, ExpoConfig } from '@expo/config';
 import fs from 'node:fs';
 import path from 'node:path';
 
+const PROJECT_ID_PLACEHOLDER = 'REPLACE_WITH_YOUR_EAS_PROJECT_ID';
+
 const loadLocalEnvFile = () => {
   const envPath = path.resolve(__dirname, '.env');
 
@@ -33,23 +35,60 @@ const loadLocalEnvFile = () => {
 
 loadLocalEnvFile();
 
-const requireProjectId = () => {
-  const envProjectId =
-    process.env.EAS_PROJECT_ID || process.env.EXPO_PUBLIC_EAS_PROJECT_ID;
-
-  if (!envProjectId) {
-    if (process.env.EAS_BUILD) {
-      throw new Error(
-        "O identificador do projeto EAS não foi definido. Configure a variável de ambiente 'EAS_PROJECT_ID' (ou 'EXPO_PUBLIC_EAS_PROJECT_ID') antes de iniciar um build."
-      );
-    }
-
-    console.warn(
-      "⚠️  Nenhuma variável 'EAS_PROJECT_ID' encontrada. Os builds da EAS irão falhar até que esse valor seja configurado."
-    );
+const normalizeProjectId = (value: string | undefined | null) => {
+  const trimmed = value?.trim();
+  if (!trimmed || trimmed === PROJECT_ID_PLACEHOLDER) {
+    return undefined;
   }
 
-  return envProjectId ?? 'local-only-project-id';
+  return trimmed;
+};
+
+const loadProjectIdFromFile = () => {
+  const filePath = path.resolve(__dirname, 'eas.project.json');
+
+  if (!fs.existsSync(filePath)) {
+    return undefined;
+  }
+
+  try {
+    const rawContent = fs.readFileSync(filePath, 'utf-8');
+    const parsed = JSON.parse(rawContent) as { projectId?: string };
+    return normalizeProjectId(parsed.projectId);
+  } catch (error) {
+    console.warn(
+      '⚠️  Não foi possível ler o arquivo eas.project.json. Verifique se o JSON está válido.',
+      error
+    );
+    return undefined;
+  }
+};
+
+const requireProjectId = () => {
+  const envProjectId = normalizeProjectId(
+    process.env.EAS_PROJECT_ID || process.env.EXPO_PUBLIC_EAS_PROJECT_ID
+  );
+
+  if (envProjectId) {
+    return envProjectId;
+  }
+
+  const fileProjectId = loadProjectIdFromFile();
+
+  if (fileProjectId) {
+    return fileProjectId;
+  }
+
+  const helpMessage =
+    "O identificador do projeto EAS não foi definido. Configure a variável de ambiente 'EAS_PROJECT_ID' (ou 'EXPO_PUBLIC_EAS_PROJECT_ID') ou preencha o campo 'projectId' em 'eas.project.json' antes de iniciar um build.";
+
+  if (process.env.EAS_BUILD) {
+    throw new Error(helpMessage);
+  }
+
+  console.warn(`⚠️  ${helpMessage}`);
+
+  return PROJECT_ID_PLACEHOLDER;
 };
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
