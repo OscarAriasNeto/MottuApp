@@ -6,6 +6,7 @@ const PROJECT_ID_PLACEHOLDER = 'REPLACE_WITH_YOUR_EAS_PROJECT_ID';
 const SLUG_PLACEHOLDER = 'REPLACE_WITH_YOUR_EXPO_SLUG';
 const DEFAULT_APP_NAME = 'MottuApp';
 const DEFAULT_APP_SLUG = 'mottuapp';
+const DEFAULT_ANDROID_PACKAGE = 'com.mottuapp.mobile';
 
 const loadLocalEnvFile = () => {
   const envPath = path.resolve(__dirname, '.env');
@@ -176,50 +177,98 @@ const requireProjectSlug = (
   return DEFAULT_APP_SLUG;
 };
 
+const requireAndroidPackage = (configPackage: string | undefined) => {
+  const envPackage = normalizeValue(
+    process.env.EXPO_ANDROID_PACKAGE ||
+      process.env.ANDROID_PACKAGE ||
+      process.env.ANDROID_APP_PACKAGE,
+    [DEFAULT_ANDROID_PACKAGE]
+  );
+
+  if (envPackage) {
+    return envPackage;
+  }
+
+  const normalizedConfigPackage = normalizeValue(configPackage, [DEFAULT_ANDROID_PACKAGE]);
+
+  if (normalizedConfigPackage) {
+    return normalizedConfigPackage;
+  }
+
+  const helpMessage =
+    "O identificador Android (android.package) não foi definido. Defina a variável de ambiente 'EXPO_ANDROID_PACKAGE' (ou 'ANDROID_PACKAGE'/'ANDROID_APP_PACKAGE') ou ajuste o campo 'android.package' em 'app.config.ts' para corresponder ao identificador exclusivo usado na Google Play.";
+
+  if (process.env.EAS_BUILD) {
+    throw new Error(helpMessage);
+  }
+
+  console.warn(`⚠️  ${helpMessage}`);
+
+  return DEFAULT_ANDROID_PACKAGE;
+};
+
 const { projectId: storedProjectId, slug: storedSlug } = loadProjectSettingsFromFile();
 
 const projectId = requireProjectId(storedProjectId);
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
-  ...config,
-  name: config.name ?? DEFAULT_APP_NAME,
-  slug: requireProjectSlug(storedSlug, config.slug, projectId),
-  version: '1.0.0',
-  orientation: 'portrait',
-  icon: './assets/icon.png',
-  scheme: 'mottuapp',
-  userInterfaceStyle: 'light',
-  newArchEnabled: true,
-  splash: {
-    image: './assets/splash-icon.png',
-    resizeMode: 'contain',
-    backgroundColor: '#ffffff',
-  },
-  ios: {
-    supportsTablet: true,
-    bundleIdentifier: 'com.mottuapp.mobile',
-    buildNumber: '1.0.0',
-  },
-  android: {
-    adaptiveIcon: {
-      foregroundImage: './assets/adaptive-icon.png',
+export default ({ config }: ConfigContext): ExpoConfig => {
+  const normalizedExtra =
+    config.extra && typeof config.extra === 'object' ? config.extra : {};
+  const normalizedCli =
+    config.cli && typeof config.cli === 'object' ? config.cli : {};
+  const normalizedAndroid =
+    config.android && typeof config.android === 'object' ? config.android : {};
+  const normalizedAdaptiveIcon =
+    normalizedAndroid.adaptiveIcon && typeof normalizedAndroid.adaptiveIcon === 'object'
+      ? normalizedAndroid.adaptiveIcon
+      : {};
+
+  return {
+    ...config,
+    name: config.name ?? DEFAULT_APP_NAME,
+    slug: requireProjectSlug(storedSlug, config.slug, projectId),
+    version: '1.0.0',
+    orientation: 'portrait',
+    icon: './assets/icon.png',
+    scheme: 'mottuapp',
+    userInterfaceStyle: 'light',
+    newArchEnabled: true,
+    splash: {
+      image: './assets/splash-icon.png',
+      resizeMode: 'contain',
       backgroundColor: '#ffffff',
     },
-    edgeToEdgeEnabled: true,
-    package: 'com.mottuapp.mobile',
-    versionCode: 1,
-  },
-  web: {
-    favicon: './assets/favicon.png',
-  },
-  extra: {
-    ...config.extra,
-    eas: {
-      projectId,
+    ios: {
+      supportsTablet: true,
+      bundleIdentifier: 'com.mottuapp.mobile',
+      buildNumber: '1.0.0',
     },
-  },
-  cli: {
-    ...config.cli,
-    appVersionSource: 'remote',
-  },
-});
+    android: {
+      ...normalizedAndroid,
+      adaptiveIcon: {
+        foregroundImage: './assets/adaptive-icon.png',
+        backgroundColor: '#ffffff',
+        ...normalizedAdaptiveIcon,
+      },
+      edgeToEdgeEnabled: normalizedAndroid.edgeToEdgeEnabled ?? true,
+      package: requireAndroidPackage((normalizedAndroid as { package?: string }).package),
+      versionCode:
+        typeof (normalizedAndroid as { versionCode?: number }).versionCode === 'number'
+          ? (normalizedAndroid as { versionCode?: number }).versionCode!
+          : 1,
+    },
+    web: {
+      favicon: './assets/favicon.png',
+    },
+    extra: {
+      ...normalizedExtra,
+      eas: {
+        projectId,
+      },
+    },
+    cli: {
+      ...normalizedCli,
+      appVersionSource: normalizedCli.appVersionSource ?? 'remote',
+    },
+  };
+};

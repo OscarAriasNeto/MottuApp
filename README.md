@@ -124,10 +124,13 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
 
 9. **Confirme o campo `cli.appVersionSource`**
    - O EAS exige (ou em breve exigirá) que esse campo esteja definido para saber como calcular o versionamento do app.
-   - O `app.config.ts` já força `cli.appVersionSource` para `remote`. Caso veja o aviso `The field "cli.appVersionSource" is not set`, garanta que está usando este arquivo de configuração e que não existe outro `app.json` ou `app.config.js` em paralelo sobrescrevendo o valor.
+   - O `app.config.ts` já força `cli.appVersionSource` para `remote`, inclusive quando o EAS injeta um objeto `cli` vazio.
+   - Para validar localmente, execute `npx expo config --json | jq '.cli'`. O resultado deve trazer `{ "appVersionSource": "remote" }`. Se surgir o aviso `The field "cli.appVersionSource" is not set`, confira se está usando a branch atualizada e se não existe outro arquivo de configuração sobrescrevendo o valor.
 
 10. **Defina identificadores exclusivos**
    - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.config.ts` para valores únicos da sua organização.
+   - Caso prefira não versionar o identificador Android, preencha `EXPO_ANDROID_PACKAGE=com.suaempresa.seuapp` no `.env` (o mesmo valor pode ser salvo como segredo no EAS com `eas secret:create --name EXPO_ANDROID_PACKAGE --scope project --type string`).
+   - O comando `npx eas credentials --platform android` depende desse campo; se o valor estiver ausente, o EAS exibirá o erro `Specify "android.package" in app.json`. Depois de configurar o identificador, rode `npx expo config --json | jq '.android.package'` para validar que o valor foi aplicado corretamente.
    - Atualize também o campo `expo.name`, se necessário, antes do build de produção.
 
 11. **Execute um build de desenvolvimento ou preview**
@@ -143,7 +146,8 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    npx eas build --platform android --profile production
    npx eas build --platform ios --profile production
    ```
-   Durante o processo, a CLI solicitará as credenciais necessárias (keystore Android ou certificados Apple).
+   - Builds não interativos (por exemplo no servidor do EAS) exigem que o keystore Android já esteja cadastrado. Caso receba `Generating a new Keystore is not supported in --non-interactive mode`, utilize `npx eas credentials --platform android` para subir um keystore existente ou gere um novo build localmente (modo interativo) antes de tentar novamente.
+   - Se o build apontar que não encontrou variáveis de ambiente para o ambiente `production`, cadastre-as com `eas secret:create --profile production ...` ou ignore o aviso se nenhuma variável for necessária.
 
 13. **Acompanhe o progresso no painel da Expo**
    - Acesse [https://expo.dev/accounts](https://expo.dev/accounts)
