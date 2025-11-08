@@ -5,7 +5,7 @@ import path from 'node:path';
 const PROJECT_ID_PLACEHOLDER = 'REPLACE_WITH_YOUR_EAS_PROJECT_ID';
 const SLUG_PLACEHOLDER = 'REPLACE_WITH_YOUR_EXPO_SLUG';
 const DEFAULT_APP_NAME = 'MottuApp';
-const DEFAULT_APP_SLUG = 'MottuApp';
+const DEFAULT_APP_SLUG = 'mottuapp';
 
 const loadLocalEnvFile = () => {
   const envPath = path.resolve(__dirname, '.env');
@@ -106,9 +106,36 @@ const requireProjectId = (storedProjectId?: string) => {
   return PROJECT_ID_PLACEHOLDER;
 };
 
-const requireProjectSlug = (storedSlug?: string, configSlug?: string) => {
+const looksLikeUuid = (value: string) =>
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+
+const inferSlugFromProjectId = (value: string | undefined) => {
+  const normalized = normalizeValue(value, [PROJECT_ID_PLACEHOLDER]);
+
+  if (!normalized) {
+    return undefined;
+  }
+
+  if (normalized.includes('/')) {
+    const segments = normalized.split('/').filter(Boolean);
+    const slugCandidate = segments.at(-1);
+    return normalizeValue(slugCandidate ?? undefined, [PROJECT_ID_PLACEHOLDER, SLUG_PLACEHOLDER]);
+  }
+
+  if (!looksLikeUuid(normalized)) {
+    return normalized;
+  }
+
+  return undefined;
+};
+
+const requireProjectSlug = (
+  storedSlug: string | undefined,
+  configSlug: string | undefined,
+  projectIdForInference: string | undefined
+) => {
   const normalizeSlug = (value: string | undefined | null) =>
-    normalizeValue(value, [PROJECT_ID_PLACEHOLDER, SLUG_PLACEHOLDER]);
+    normalizeValue(value, [PROJECT_ID_PLACEHOLDER, SLUG_PLACEHOLDER, DEFAULT_APP_SLUG]);
 
   const envSlug = normalizeSlug(
     process.env.EXPO_APP_SLUG ||
@@ -131,6 +158,12 @@ const requireProjectSlug = (storedSlug?: string, configSlug?: string) => {
     return normalizedConfigSlug;
   }
 
+  const inferredSlug = inferSlugFromProjectId(projectIdForInference);
+
+  if (inferredSlug) {
+    return inferredSlug;
+  }
+
   const helpMessage =
     "O 'slug' do projeto Expo não foi definido. Defina a variável de ambiente 'EXPO_APP_SLUG' (ou 'EXPO_SLUG'/'APP_SLUG') ou preencha o campo 'slug' em 'eas.project.json' para corresponder ao slug cadastrado no painel da Expo.";
 
@@ -150,7 +183,7 @@ const projectId = requireProjectId(storedProjectId);
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: config.name ?? DEFAULT_APP_NAME,
-  slug: requireProjectSlug(storedSlug, config.slug),
+  slug: requireProjectSlug(storedSlug, config.slug, projectId),
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
@@ -165,6 +198,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier: 'com.mottuapp.mobile',
+    buildNumber: '1.0.0',
   },
   android: {
     adaptiveIcon: {
@@ -173,6 +207,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
     edgeToEdgeEnabled: true,
     package: 'com.mottuapp.mobile',
+    versionCode: 1,
   },
   web: {
     favicon: './assets/favicon.png',
