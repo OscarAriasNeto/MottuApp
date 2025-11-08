@@ -107,9 +107,17 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
      - **Variável de ambiente:** se preferir não versionar o ID, duplique o arquivo `.env.example`, renomeie para `.env` e preencha `EAS_PROJECT_ID=<seu_project_id>`. Para builds remotos, registre o valor como segredo com `eas secret:create --name EAS_PROJECT_ID --scope project --type string`.
    - Quando você roda um build remoto na Expo, a plataforma já injeta a variável `EAS_BUILD_PROJECT_ID` após o projeto estar associado à sua conta (`eas init`). A checagem no `app.config.ts` reconhece esse valor automaticamente, então basta garantir o vínculo do app com o projeto certo.
 
-7. **Defina identificadores exclusivos**
+7. **Garanta que o slug corresponde ao projeto Expo**
+   - O slug precisa ser exatamente o mesmo exibido no painel da Expo (Project page → Settings → Project slug). Caso haja divergência, o EAS aborta o build com a mensagem:
+     > `Slug for project identified by "extra.eas.projectId" (...) does not match the "slug" field (...)`
+   - Há duas formas de definir o slug:
+     - **Arquivo:** preencha o campo `slug` em `eas.project.json` (mesmo arquivo onde você pode guardar o `projectId`).
+     - **Variável de ambiente:** configure `EXPO_APP_SLUG=<seu_slug>` no `.env` local e, para builds remotos, crie o segredo correspondente com `eas secret:create --name EXPO_APP_SLUG --scope project --type string`.
+   - Caso o slug não esteja definido ao iniciar um build remoto, o `app.config.ts` interrompe o processo com uma mensagem orientando como preencher o valor correto.
+
+8. **Defina identificadores exclusivos**
    - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.config.ts` para valores únicos da sua organização.
-   - Atualize também os campos `expo.name` e `expo.slug`, se necessário, antes do build de produção.
+   - Atualize também o campo `expo.name`, se necessário, antes do build de produção.
 
 8. **Execute um build de desenvolvimento ou preview**
    ```bash
