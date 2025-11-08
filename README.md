@@ -111,7 +111,7 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    - O slug precisa ser exatamente o mesmo exibido no painel da Expo (Project page → Settings → Project slug). Caso haja divergência, o EAS aborta o build com a mensagem:
      > `Slug for project identified by "extra.eas.projectId" (...) does not match the "slug" field (...)`
    - Há duas formas de definir o slug:
-     - **Arquivo:** preencha o campo `slug` em `eas.project.json` (mesmo arquivo onde você pode guardar o `projectId`).
+     - **Arquivo:** preencha o campo `slug` em `eas.project.json` (mesmo arquivo onde você pode guardar o `projectId`). O repositório já traz o valor `marcacaoDeConsultasMedicas` para acompanhar o projeto vinculado no painel da Expo — ajuste esse campo caso o slug mude no futuro.
      - **Variável de ambiente:** configure `EXPO_APP_SLUG=<seu_slug>` no `.env` local e, para builds remotos, crie o segredo correspondente com `eas secret:create --name EXPO_APP_SLUG --scope project --type string`.
    - Se o `projectId` configurado já incluir o slug (por exemplo `@minha-conta/meu-app` ou apenas `meu-app`), o `app.config.ts` passa a inferir automaticamente o `slug` a partir desse identificador. Ainda assim, mantenha o arquivo ou a variável preenchida para evitar ambiguidades entre diferentes projetos.
    - Caso o slug não esteja definido ao iniciar um build remoto, o `app.config.ts` interrompe o processo com uma mensagem orientando como preencher o valor correto.
