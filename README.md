@@ -114,12 +114,17 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
      - **Arquivo:** preencha o campo `slug` em `eas.project.json` (mesmo arquivo onde você pode guardar o `projectId`).
      - **Variável de ambiente:** configure `EXPO_APP_SLUG=<seu_slug>` no `.env` local e, para builds remotos, crie o segredo correspondente com `eas secret:create --name EXPO_APP_SLUG --scope project --type string`.
    - Caso o slug não esteja definido ao iniciar um build remoto, o `app.config.ts` interrompe o processo com uma mensagem orientando como preencher o valor correto.
+   - Se a mensagem de erro mostrar o placeholder `REPLACE_WITH_YOUR_EXPO_SLUG`, significa que o valor ainda não foi substituído pelo slug real — ajuste o arquivo ou a variável de ambiente antes do próximo build.
 
-8. **Defina identificadores exclusivos**
+8. **Confirme o campo `cli.appVersionSource`**
+   - O EAS exige (ou em breve exigirá) que esse campo esteja definido para saber como calcular o versionamento do app.
+   - O `app.config.ts` já força `cli.appVersionSource` para `remote`. Caso veja o aviso `The field "cli.appVersionSource" is not set`, garanta que está usando este arquivo de configuração e que não existe outro `app.json` ou `app.config.js` em paralelo sobrescrevendo o valor.
+
+9. **Defina identificadores exclusivos**
    - Ajuste `expo.ios.bundleIdentifier` e `expo.android.package` em `app.config.ts` para valores únicos da sua organização.
    - Atualize também o campo `expo.name`, se necessário, antes do build de produção.
 
-8. **Execute um build de desenvolvimento ou preview**
+10. **Execute um build de desenvolvimento ou preview**
    ```bash
    npx eas build --platform android --profile preview
    # ou
@@ -127,18 +132,18 @@ Isso abrirá o Metro Bundler no navegador. Você pode:
    ```
    Utilize o perfil `development` se precisar do cliente de desenvolvimento com Debugger.
 
-9. **Execute o build de produção**
+11. **Execute o build de produção**
    ```bash
    npx eas build --platform android --profile production
    npx eas build --platform ios --profile production
    ```
    Durante o processo, a CLI solicitará as credenciais necessárias (keystore Android ou certificados Apple).
 
-10. **Acompanhe o progresso no painel da Expo**
+12. **Acompanhe o progresso no painel da Expo**
    - Acesse [https://expo.dev/accounts](https://expo.dev/accounts)
    - Abra o projeto e acompanhe o status do build.
 
-11. **Publique atualizações (opcional)**
+13. **Publique atualizações (opcional)**
     ```bash
     npx expo upload:android
     npx expo upload:ios

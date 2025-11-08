@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const PROJECT_ID_PLACEHOLDER = 'REPLACE_WITH_YOUR_EAS_PROJECT_ID';
+const SLUG_PLACEHOLDER = 'REPLACE_WITH_YOUR_EXPO_SLUG';
 const DEFAULT_APP_NAME = 'MottuApp';
 const DEFAULT_APP_SLUG = 'MottuApp';
 
@@ -37,9 +38,12 @@ const loadLocalEnvFile = () => {
 
 loadLocalEnvFile();
 
-const normalizeProjectId = (value: string | undefined | null) => {
+const normalizeValue = (
+  value: string | undefined | null,
+  placeholders: string[]
+) => {
   const trimmed = value?.trim();
-  if (!trimmed || trimmed === PROJECT_ID_PLACEHOLDER) {
+  if (!trimmed || placeholders.includes(trimmed)) {
     return undefined;
   }
 
@@ -62,8 +66,8 @@ const loadProjectSettingsFromFile = (): StoredProjectSettings => {
     const rawContent = fs.readFileSync(filePath, 'utf-8');
     const parsed = JSON.parse(rawContent) as StoredProjectSettings;
     return {
-      projectId: normalizeProjectId(parsed.projectId),
-      slug: normalizeProjectId(parsed.slug),
+      projectId: normalizeValue(parsed.projectId, [PROJECT_ID_PLACEHOLDER]),
+      slug: normalizeValue(parsed.slug, [PROJECT_ID_PLACEHOLDER, SLUG_PLACEHOLDER]),
     };
   } catch (error) {
     console.warn(
@@ -75,10 +79,11 @@ const loadProjectSettingsFromFile = (): StoredProjectSettings => {
 };
 
 const requireProjectId = (storedProjectId?: string) => {
-  const envProjectId = normalizeProjectId(
+  const envProjectId = normalizeValue(
     process.env.EAS_PROJECT_ID ||
       process.env.EXPO_PUBLIC_EAS_PROJECT_ID ||
-      process.env.EAS_BUILD_PROJECT_ID
+      process.env.EAS_BUILD_PROJECT_ID,
+    [PROJECT_ID_PLACEHOLDER]
   );
 
   if (envProjectId) {
@@ -102,7 +107,8 @@ const requireProjectId = (storedProjectId?: string) => {
 };
 
 const requireProjectSlug = (storedSlug?: string, configSlug?: string) => {
-  const normalizeSlug = (value: string | undefined | null) => normalizeProjectId(value);
+  const normalizeSlug = (value: string | undefined | null) =>
+    normalizeValue(value, [PROJECT_ID_PLACEHOLDER, SLUG_PLACEHOLDER]);
 
   const envSlug = normalizeSlug(
     process.env.EXPO_APP_SLUG ||
@@ -178,6 +184,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     },
   },
   cli: {
+    ...config.cli,
     appVersionSource: 'remote',
   },
 });
